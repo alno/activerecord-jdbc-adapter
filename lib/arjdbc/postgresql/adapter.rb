@@ -23,7 +23,7 @@ module ArJdbc
     # This is called by #connect and should not be called manually.
     def configure_connection
       if encoding = config[:encoding]
-        self.set_client_encoding(encoding)
+        # self.set_client_encoding(encoding)
       end
       self.client_min_messages = config[:min_messages] || 'warning'
       self.schema_search_path = config[:schema_search_path] || config[:schema_order]
