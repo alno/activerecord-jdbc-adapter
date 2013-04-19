@@ -651,6 +651,11 @@ module SimpleTestMethods
     #ActiveRecord::Base.logger.level = Logger::WARN
   end
 
+  def test_find_by_sql_with_binds_and_literals_with_q_mark
+    sql = 'SELECT * FROM entries WHERE ( title = ? OR title = \'bar?\')'
+    Entry.find_by_sql [ sql, 'foo' ] # Should not fail
+  end
+
   def test_find_by_sql_with_named_binds
     Entry.create!(:title => 'qqq', :content => '', :rating => 4)
     Entry.create!(:title => 'www', :content => '', :rating => 5)

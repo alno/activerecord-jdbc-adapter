@@ -533,9 +533,16 @@ module ActiveRecord
       def suble_binds(sql, binds)
         return sql if binds.nil? || binds.empty?
         copy = binds.dup
-        sql.gsub('?') { quote(*copy.shift.reverse) }
+
+        # More complex replace to skip question marks inside quotes
+        #
+        # Explanation: first part of regexp captures quoted string to first group,
+        # second part captures question mark. If first group is not nil, it means
+        # that quoted string matched and should be skipped (replaced by itself),
+        # otherwise question mark should be replaced by bind value
+        sql.gsub(/('(?:[^'\\]|\\.)*')|\?/) { $1 || quote(*copy.shift.reverse) }
       end
-      
+
       # @deprecated replaced with {#suble_binds}
       def substitute_binds(sql, binds)
         suble_binds(extract_sql(sql), binds)
