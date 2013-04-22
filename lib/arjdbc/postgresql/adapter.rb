@@ -579,7 +579,11 @@ module ArJdbc
     def supports_index_sort_order? # :nodoc:
       true
     end
-    
+
+    def supports_partial_index?
+      true
+    end
+
     # Range datatypes weren't introduced until PostgreSQL 9.2
     def supports_ranges? # :nodoc:
       postgresql_version >= 90200
