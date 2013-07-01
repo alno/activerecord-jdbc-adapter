@@ -1041,7 +1041,7 @@ module ArJdbc
       when Array
         if column.array && AR4_COMPAT
           column_class = ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn
-          "'#{column_class.array_to_string(value, column, self)}'"
+          "'#{column_class.array_to_string(value, column, self).gsub(/'/, "''")}'"
         else
           super
         end
