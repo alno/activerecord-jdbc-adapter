@@ -173,9 +173,11 @@ module ArJdbc
         
         # NOTE: we do not use OID::Type
         # @oid_type.type_cast value
-        
-        return value if array? # handled on the connection (JDBC) side
-        
+
+        if array? && value.is_a?(Array) # handled on the connection (JDBC) side
+          return value.map {|v| type_cast v }
+        end
+
         case type
         when :hstore then self.class.string_to_hstore value
         when :json then self.class.string_to_json value
