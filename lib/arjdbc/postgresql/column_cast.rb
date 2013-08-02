@@ -36,6 +36,8 @@ module ArJdbc
               k = k.gsub(/^"(.*)"$/,'\1').gsub(/\\(.)/, '\1')
               [k,v]
             }]
+          elsif Java::JavaUtil::HashMap === string
+            string.to_hash
           else
             string
           end
