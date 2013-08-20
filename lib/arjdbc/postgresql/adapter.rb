@@ -417,9 +417,13 @@ module ArJdbc
         return super(value, column) unless 'bytea' == column.sql_type
         value # { :value => value, :format => 1 }
       when Array
-        return super(value, column) unless column.array
-        column_class = ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn
-        column_class.array_to_string(value, column, self)
+        case column.sql_type
+        when 'json' then super(PostgreSQLColumn.json_to_string(value))
+        else
+          return super(value, column) unless column.array
+          column_class = ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn
+          column_class.array_to_string(value, column, self)
+        end
       when NilClass
         if column.array && array_member
           'NULL'
@@ -1044,6 +1048,9 @@ module ArJdbc
         if column.array && AR4_COMPAT
           column_class = ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn
           "'#{column_class.array_to_string(value, column, self).gsub(/'/, "''")}'"
+        elsif sql_type == 'json' && AR4_COMPAT
+          column_class = ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn
+          super(column_class.json_to_string(value), column)
         else
           super
         end
