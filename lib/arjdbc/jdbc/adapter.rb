@@ -389,6 +389,8 @@ module ActiveRecord
 
         # Converts an AREL AST to SQL.
         def to_sql(arel, binds = [])
+          binds = binds.dup
+
           # NOTE: can not handle `visitor.accept(arel.ast)` right thus
           # convert AREL to a SQL string and simply substitute binds :
           sql = arel.respond_to?(:to_sql) ? arel.send(:to_sql) : arel
@@ -397,9 +399,11 @@ module ActiveRecord
         end
         
       elsif ActiveRecord::VERSION::MAJOR >= 3 # AR >= 3.1 or 4.0
-      
+
         # Converts an AREL AST to SQL.
         def to_sql(arel, binds = [])
+          binds = binds.dup
+
           if arel.respond_to?(:ast)
             visitor.accept(arel.ast) { quote(*binds.shift.reverse) }
           else # for backwards compatibility :
