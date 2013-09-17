@@ -408,14 +408,18 @@ module ArJdbc
 
         def array_to_string(value, column, adapter, should_be_quoted = false)
           casted_values = value.map do |val|
-            if String === val
-              if val == "NULL"
-                "\"#{val}\""
-              else
-                quote_and_escape(adapter.type_cast(val, column, true))
-              end
-            else
+            if val == "NULL"
+              "\"#{val}\""
+            elsif Array === val # Special handling of multidimensional arrays
               adapter.type_cast(val, column, true)
+            else
+              casted_val = adapter.type_cast(val, column, true)
+
+              if String === casted_val
+                quote_and_escape(casted_val)
+              else
+                casted_val
+              end
             end
           end
           "{#{casted_values.join(',')}}"
@@ -454,9 +458,12 @@ module ArJdbc
         end
 
         # @note Only used for default values - we get a "parsed" array from JDBC.
-        def string_to_array(string, column)
-          return string unless String === string
-          parse_pg_array(string).map { |val| column.type_cast(val, column.type) }
+        def string_to_array(value, column)
+          case value
+          when Array then value.map { |val| column.type_cast(val, column.type) }
+          when String then parse_pg_array(value).map { |val| column.type_cast(val, column.type) }
+          else value
+          end
         end
 
         private
